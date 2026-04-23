@@ -2,6 +2,53 @@ import { useState } from "react";
 
 export default function App() {
 
+  // ===== LOGIN =====
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // ===== LANGUAGE =====
+  const translations = {
+    da: {
+      dashboard: "Dashboard",
+      inbox: "Indbakke",
+      crm: "CRM",
+      calls: "Opkald",
+      social: "Social",
+      convert: "Konverter",
+      assign: "Tildel",
+      close: "Luk",
+      delete: "Slet",
+      reply: "Svar..."
+    },
+    en: {
+      dashboard: "Dashboard",
+      inbox: "Inbox",
+      crm: "CRM",
+      calls: "Calls",
+      social: "Social",
+      convert: "Convert",
+      assign: "Assign",
+      close: "Close",
+      delete: "Delete",
+      reply: "Reply..."
+    },
+    es: {
+      dashboard: "Panel",
+      inbox: "Bandeja",
+      crm: "CRM",
+      calls: "Llamadas",
+      social: "Social",
+      convert: "Convertir",
+      assign: "Asignar",
+      close: "Cerrar",
+      delete: "Eliminar",
+      reply: "Responder..."
+    }
+  };
+
+  const [lang, setLang] = useState("da");
+  const t = (k) => translations[lang][k] || k;
+
+  // ===== DATA =====
   const [selected, setSelected] = useState(0);
 
   const [messages, setMessages] = useState([
@@ -36,27 +83,89 @@ export default function App() {
     return "#6B7280";
   };
 
+  // ===== LOGIN OVERLAY =====
+  if (!loggedIn) {
+    return (
+      <div style={{
+        height: "100vh",
+        display: "flex",
+        background: "linear-gradient(135deg,#020617,#0F172A)",
+        color: "white",
+        fontFamily: "Inter"
+      }}>
+        <div style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "28px",
+          fontWeight: "600"
+        }}>
+          CRM Platform
+        </div>
+
+        <div style={{
+          width: "420px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <div style={{
+            background: "#020617",
+            padding: "40px",
+            borderRadius: "16px",
+            boxShadow: "0 0 40px rgba(0,0,0,0.5)"
+          }}>
+            <h2 style={{ marginBottom: "20px" }}>Login</h2>
+
+            <button
+              onClick={() => setLoggedIn(true)}
+              style={{
+                width: "100%",
+                padding: "12px",
+                background: "#22C55E",
+                border: "none",
+                borderRadius: "8px",
+                color: "white",
+                cursor: "pointer"
+              }}
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== MAIN UI =====
   return (
     <div style={{ display: "flex", height: "100vh", background: "#0F172A", color: "#E5E7EB", fontFamily: "Inter" }}>
 
       {/* SIDEBAR */}
-      <div style={{ width: "220px", background: "#020617", padding: "20px" }}>
+      <div style={{ width: "220px", background: "#020617", padding: "20px", position: "relative" }}>
         <h2 style={{ marginBottom: "30px" }}>CRM</h2>
 
-        {["Dashboard", "Inbox", "CRM", "Calls", "Social"].map((item) => (
+        {[t("dashboard"), t("inbox"), t("crm"), t("calls"), t("social")].map((item) => (
           <div key={item} style={{
             padding: "10px",
             borderRadius: "8px",
             marginBottom: "10px",
             cursor: "pointer",
-            background: item === "Inbox" ? "#1E293B" : "transparent"
+            background: item === t("inbox") ? "#1E293B" : "transparent"
           }}>
             {item}
           </div>
         ))}
 
+        {/* SETTINGS + FLAGS */}
         <div style={{ position: "absolute", bottom: "20px" }}>
           ⚙ Settings
+          <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+            <span onClick={() => setLang("da")} style={{ cursor: "pointer" }}>🇩🇰</span>
+            <span onClick={() => setLang("en")} style={{ cursor: "pointer" }}>🇬🇧</span>
+            <span onClick={() => setLang("es")} style={{ cursor: "pointer" }}>🇪🇸</span>
+          </div>
         </div>
       </div>
 
@@ -64,23 +173,43 @@ export default function App() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
 
         {/* TOP BAR */}
-        <div style={{ display: "flex", gap: "15px", padding: "15px", borderBottom: "1px solid #1E293B" }}>
-          {[
-            { label: "Inbox", value: 12 },
-            { label: "Calls", value: 5 },
-            { label: "Messages", value: 18 },
-            { label: "Emails", value: 72 },
-            { label: "Deals", value: 35 }
-          ].map((item, i) => (
-            <div key={i} style={{
-              background: "#1E293B",
-              padding: "10px 15px",
-              borderRadius: "10px"
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "15px", borderBottom: "1px solid #1E293B" }}>
+
+          <div style={{ display: "flex", gap: "15px" }}>
+            {[
+              { label: "Inbox", value: 12 },
+              { label: "Calls", value: 5 },
+              { label: "Messages", value: 18 },
+              { label: "Emails", value: 72 },
+              { label: "Deals", value: 35 }
+            ].map((item, i) => (
+              <div key={i} style={{
+                background: "#1E293B",
+                padding: "10px 15px",
+                borderRadius: "10px"
+              }}>
+                {item.label}<br />
+                <b>{item.value}</b>
+              </div>
+            ))}
+          </div>
+
+          {/* USER */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            Brian
+            <div style={{
+              width: "35px",
+              height: "35px",
+              borderRadius: "50%",
+              background: "#3B82F6",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
             }}>
-              {item.label}<br />
-              <b>{item.value}</b>
+              B
             </div>
-          ))}
+          </div>
+
         </div>
 
         {/* CONTENT */}
@@ -96,7 +225,8 @@ export default function App() {
                   marginBottom: "10px",
                   borderRadius: "10px",
                   cursor: "pointer",
-                  background: selected === i ? "#1E293B" : "#020617"
+                  background: selected === i ? "#1E293B" : "#020617",
+                  transition: "0.2s"
                 }}>
                 <b>{item.name}</b><br />
                 <small>{item.text}</small>
@@ -131,27 +261,15 @@ export default function App() {
             <h2>{active?.name}</h2>
             <p>{active?.text}</p>
 
-            {/* BUTTONS */}
             <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-              <button style={{ background: "#22C55E", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={convertToCRM}>
-                Convert
-              </button>
-
-              <button style={{ background: "#3B82F6", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={() => updateStatus("in progress")}>
-                Assign
-              </button>
-
-              <button style={{ background: "#475569", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={() => updateStatus("closed")}>
-                Close
-              </button>
-
-              <button style={{ background: "#EF4444", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={removeTicket}>
-                Delete
-              </button>
+              <button style={{ background: "#22C55E", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={convertToCRM}>{t("convert")}</button>
+              <button style={{ background: "#3B82F6", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={() => updateStatus("in progress")}>{t("assign")}</button>
+              <button style={{ background: "#475569", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={() => updateStatus("closed")}>{t("close")}</button>
+              <button style={{ background: "#EF4444", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={removeTicket}>{t("delete")}</button>
             </div>
 
             <textarea
-              placeholder="Svar..."
+              placeholder={t("reply")}
               style={{
                 marginTop: "20px",
                 width: "100%",
