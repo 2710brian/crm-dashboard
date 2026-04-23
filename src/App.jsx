@@ -2,14 +2,61 @@ import { useState } from "react";
 
 export default function App() {
 
+  // ===== LANGUAGE =====
+  const translations = {
+    da: {
+      login: "Login",
+      inbox: "Indbakke",
+      crm: "CRM",
+      convert: "Konverter",
+      assign: "Tildel",
+      close: "Luk",
+      delete: "Slet",
+      normal: "Normal",
+      affiliate: "Affiliate",
+      iptv: "IPTV/Plex"
+    },
+    en: {
+      login: "Login",
+      inbox: "Inbox",
+      crm: "CRM",
+      convert: "Convert",
+      assign: "Assign",
+      close: "Close",
+      delete: "Delete",
+      normal: "Normal",
+      affiliate: "Affiliate",
+      iptv: "IPTV/Plex"
+    },
+    es: {
+      login: "Login",
+      inbox: "Bandeja",
+      crm: "CRM",
+      convert: "Convertir",
+      assign: "Asignar",
+      close: "Cerrar",
+      delete: "Eliminar",
+      normal: "Normal",
+      affiliate: "Afiliado",
+      iptv: "IPTV/Plex"
+    }
+  };
+
+  const [lang, setLang] = useState("da");
+  const t = (k) => translations[lang][k] || k;
+
+  // ===== LOGIN =====
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // ===== APP STATE =====
   const [view, setView] = useState("inbox");
   const [selected, setSelected] = useState(0);
   const [showTypeSelect, setShowTypeSelect] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const [messages, setMessages] = useState([
-    { name: "3nordic.dk", type: "email", text: "Hej vi vil gerne samarbejde...", status: "open" },
-    { name: "Nordic Food", type: "whatsapp", text: "Kan du sende priser?", status: "open" },
-    { name: "Unknown Lead", type: "call", text: "Missed call", status: "closed" }
+    { name: "3nordic.dk", type: "email", text: "Samarbejde?", status: "open" },
+    { name: "Nordic Food", type: "whatsapp", text: "Pris?", status: "open" }
   ]);
 
   const [crm, setCrm] = useState([]);
@@ -17,265 +64,176 @@ export default function App() {
 
   const active = messages[selected];
 
-  const getBadgeColor = (type) => {
-    if (type === "email") return "#3B82F6";
-    if (type === "whatsapp") return "#22C55E";
-    return "#F97316";
-  };
-
   const convertToCRM = (type) => {
-    const newClient = {
-      name: active.name,
-      email: "unknown@mail.com",
-      type
-    };
-
-    setCrm([...crm, newClient]);
-    setCrmSelected(newClient);
-    setView("crm");
+    const client = { name: active.name, type };
+    setCrm([...crm, client]);
+    setCrmSelected(client);
+    setShowModal(true);
     setShowTypeSelect(false);
   };
 
-  return (
-    <div style={{
-      display: "flex",
-      height: "100vh",
-      background: "#0F172A",
-      color: "#E5E7EB",
-      fontFamily: "Inter"
-    }}>
+  const updateStatus = (status) => {
+    const copy = [...messages];
+    copy[selected].status = status;
+    setMessages(copy);
+  };
 
-      {/* SIDEBAR */}
+  const removeTicket = () => {
+    setMessages(messages.filter((_, i) => i !== selected));
+    setSelected(0);
+  };
+
+  // ===== LOGIN OVERLAY =====
+  if (!loggedIn) {
+    return (
       <div style={{
-        width: "220px",
-        background: "#020617",
-        padding: "20px",
+        height: "100vh",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between"
+        background: "linear-gradient(135deg,#020617,#0F172A)",
+        color: "white",
+        fontFamily: "Inter"
       }}>
-        <div>
-          <h2 style={{ marginBottom: "30px" }}>CRM</h2>
-
-          <div onClick={() => setView("inbox")} style={{
-            padding: "10px",
-            borderRadius: "8px",
-            marginBottom: "10px",
-            cursor: "pointer",
-            background: view === "inbox" ? "#1E293B" : "transparent"
-          }}>
-            Inbox
-          </div>
-
-          <div onClick={() => setView("crm")} style={{
-            padding: "10px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            background: view === "crm" ? "#1E293B" : "transparent"
-          }}>
-            CRM
-          </div>
+        <div style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <h1>CRM Platform</h1>
         </div>
 
-        <div>⚙ Settings</div>
+        <div style={{
+          width: "400px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <div style={{
+            background: "#020617",
+            padding: "40px",
+            borderRadius: "16px"
+          }}>
+            <h2>{t("login")}</h2>
+            <button onClick={() => setLoggedIn(true)}
+              style={{
+                marginTop: "20px",
+                padding: "12px",
+                width: "100%",
+                background: "#22C55E",
+                border: "none",
+                borderRadius: "8px",
+                color: "white"
+              }}>
+              {t("login")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== MAIN APP =====
+  return (
+    <div style={{ display: "flex", height: "100vh", background: "#0F172A", color: "#E5E7EB" }}>
+
+      {/* SIDEBAR */}
+      <div style={{ width: "220px", background: "#020617", padding: "20px" }}>
+        <h2>CRM</h2>
+
+        {["Dashboard","Inbox","CRM","Calls","Social","Knowledge"].map((m)=>(
+          <div key={m} style={{ marginTop: "10px", cursor: "pointer" }}>{m}</div>
+        ))}
+
+        <div style={{ position: "absolute", bottom: "20px" }}>
+          ⚙ Settings
+          <div>
+            🌍 
+            <button onClick={()=>setLang("da")}>DA</button>
+            <button onClick={()=>setLang("en")}>EN</button>
+            <button onClick={()=>setLang("es")}>ES</button>
+          </div>
+        </div>
       </div>
 
-      {/* MAIN */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      {/* CONTENT */}
+      <div style={{ flex: 1, display: "flex" }}>
 
-        {/* TOP BAR */}
-        <div style={{
-          display: "flex",
-          gap: "15px",
-          padding: "15px",
-          borderBottom: "1px solid #1E293B"
-        }}>
-          {[
-            { label: "Inbox", value: messages.length },
-            { label: "CRM", value: crm.length },
-            { label: "Calls", value: 5 },
-            { label: "Emails", value: 12 }
-          ].map((item, i) => (
-            <div key={i} style={{
-              background: "#1E293B",
-              padding: "10px 15px",
-              borderRadius: "10px"
-            }}>
-              {item.label}<br />
-              <b>{item.value}</b>
+        {/* LEFT LIST */}
+        <div style={{ width: "300px", padding: "15px", borderRight: "1px solid #1E293B" }}>
+          {messages.map((m,i)=>(
+            <div key={i} onClick={()=>setSelected(i)}
+              style={{
+                padding: "12px",
+                marginBottom: "10px",
+                background: selected===i?"#1E293B":"#020617",
+                borderRadius: "10px",
+                cursor: "pointer"
+              }}>
+              <b>{m.name}</b><br/>
+              <small>{m.text}</small>
             </div>
           ))}
         </div>
 
-        {/* CONTENT */}
-        <div style={{ flex: 1, display: "flex" }}>
+        {/* MIDDLE */}
+        <div style={{ flex: 1, padding: "20px" }}>
+          <h2>{active?.name}</h2>
 
-          {/* INBOX VIEW */}
-          {view === "inbox" && (
-            <>
-              {/* LEFT */}
-              <div style={{
-                width: "280px",
-                borderRight: "1px solid #1E293B",
-                padding: "15px"
-              }}>
-                {messages.map((item, i) => (
-                  <div key={i}
-                    onClick={() => setSelected(i)}
-                    style={{
-                      padding: "12px",
-                      marginBottom: "12px",
-                      borderRadius: "12px",
-                      cursor: "pointer",
-                      background: selected === i ? "#1E293B" : "#020617",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
-                    }}>
-                    <b>{item.name}</b><br />
-                    <small>{item.text}</small>
+          <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+            <button onClick={()=>setShowTypeSelect(true)}>{t("convert")}</button>
+            <button onClick={()=>updateStatus("assigned")}>{t("assign")}</button>
+            <button onClick={()=>updateStatus("closed")}>{t("close")}</button>
+            <button onClick={removeTicket}>{t("delete")}</button>
+          </div>
 
-                    <div style={{
-                      marginTop: "8px",
-                      display: "flex",
-                      justifyContent: "space-between"
-                    }}>
-                      <span style={{
-                        background: getBadgeColor(item.type),
-                        padding: "2px 6px",
-                        borderRadius: "6px",
-                        fontSize: "11px"
-                      }}>
-                        {item.type}
-                      </span>
-
-                      <span style={{
-                        color: item.status === "closed" ? "#EF4444" : "#22C55E",
-                        fontSize: "11px"
-                      }}>
-                        {item.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* MIDDLE */}
-              <div style={{ flex: 1, padding: "20px" }}>
-                <h2>{active.name}</h2>
-                <p>{active.text}</p>
-
-                <div style={{ marginTop: "20px" }}>
-                  <button style={{
-                    background: "#22C55E",
-                    border: "none",
-                    padding: "10px 14px",
-                    borderRadius: "8px",
-                    color: "white",
-                    fontWeight: "600",
-                    cursor: "pointer"
-                  }} onClick={() => setShowTypeSelect(true)}>
-                    Convert to CRM
-                  </button>
-                </div>
-
-                {showTypeSelect && (
-                  <div style={{
-                    marginTop: "15px",
-                    background: "#020617",
-                    padding: "15px",
-                    borderRadius: "10px",
-                    display: "flex",
-                    gap: "10px"
-                  }}>
-                    <button style={{ background: "#3B82F6", color: "white", border: "none", padding: "8px", borderRadius: "6px" }} onClick={() => convertToCRM("normal")}>Normal</button>
-                    <button style={{ background: "#22C55E", color: "white", border: "none", padding: "8px", borderRadius: "6px" }} onClick={() => convertToCRM("affiliate")}>Affiliate</button>
-                    <button style={{ background: "#F97316", color: "white", border: "none", padding: "8px", borderRadius: "6px" }} onClick={() => convertToCRM("iptv")}>IPTV</button>
-                  </div>
-                )}
-              </div>
-
-              {/* RIGHT */}
-              <div style={{
-                width: "260px",
-                borderLeft: "1px solid #1E293B",
-                padding: "15px"
-              }}>
-                <div style={{
-                  background: "#020617",
-                  padding: "15px",
-                  borderRadius: "10px"
-                }}>
-                  <h3>Kunde info</h3>
-                  <p>Status: {active.status}</p>
-                  <p>Kanal: {active.type}</p>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* CRM VIEW */}
-          {view === "crm" && (
-            <div style={{ flex: 1, display: "flex" }}>
-
-              {/* LIST */}
-              <div style={{
-                width: "280px",
-                borderRight: "1px solid #1E293B",
-                padding: "15px"
-              }}>
-                {crm.map((c, i) => (
-                  <div key={i}
-                    onClick={() => setCrmSelected(c)}
-                    style={{
-                      padding: "10px",
-                      marginBottom: "10px",
-                      background: "#020617",
-                      borderRadius: "10px",
-                      cursor: "pointer"
-                    }}>
-                    {c.name}
-                  </div>
-                ))}
-              </div>
-
-              {/* DETAILS */}
-              <div style={{ flex: 1, padding: "20px" }}>
-                {crmSelected && (
-                  <>
-                    <h2>{crmSelected.name}</h2>
-
-                    <div style={{
-                      display: "flex",
-                      gap: "10px",
-                      marginBottom: "20px"
-                    }}>
-                      <div style={{ background: "#1E293B", padding: "6px 10px", borderRadius: "6px" }}>Kontakt</div>
-
-                      {crmSelected.type === "affiliate" && (
-                        <div style={{ background: "#1E293B", padding: "6px 10px", borderRadius: "6px" }}>Affiliate</div>
-                      )}
-
-                      {crmSelected.type === "iptv" && (
-                        <div style={{ background: "#1E293B", padding: "6px 10px", borderRadius: "6px" }}>IPTV</div>
-                      )}
-                    </div>
-
-                    <div style={{
-                      background: "#020617",
-                      padding: "15px",
-                      borderRadius: "10px"
-                    }}>
-                      <p>Email: {crmSelected.email}</p>
-                      <p>Type: {crmSelected.type}</p>
-                    </div>
-                  </>
-                )}
-              </div>
-
+          {showTypeSelect && (
+            <div style={{ marginTop: "10px" }}>
+              <button onClick={()=>convertToCRM("normal")}>{t("normal")}</button>
+              <button onClick={()=>convertToCRM("affiliate")}>{t("affiliate")}</button>
+              <button onClick={()=>convertToCRM("iptv")}>{t("iptv")}</button>
             </div>
           )}
-
         </div>
+
+        {/* RIGHT */}
+        <div style={{ width: "250px", padding: "15px", borderLeft: "1px solid #1E293B" }}>
+          <p>Status: {active?.status}</p>
+        </div>
+
       </div>
+
+      {/* MODAL */}
+      {showModal && crmSelected && (
+        <div style={{
+          position: "fixed",
+          top:0,left:0,right:0,bottom:0,
+          background:"rgba(0,0,0,0.7)",
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"center"
+        }}>
+          <div style={{
+            width:"80%",
+            height:"80%",
+            background:"#020617",
+            borderRadius:"12px",
+            padding:"20px"
+          }}>
+            <h2>{crmSelected.name}</h2>
+
+            <div style={{ display:"flex", gap:"10px", marginBottom:"20px" }}>
+              <div>Kontakt</div>
+
+              {crmSelected.type==="affiliate" && <div>Affiliate</div>}
+              {crmSelected.type==="iptv" && <div>IPTV</div>}
+              {crmSelected.type==="normal" && <div>Kunde</div>}
+            </div>
+
+            <button onClick={()=>setShowModal(false)}>Luk</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
