@@ -162,7 +162,6 @@ export default function App() {
           </div>
         ))}
 
-        {/* SETTINGS + FLAGS */}
         <div style={{ position: "absolute", bottom: "20px" }}>
           ⚙ Settings
           <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
@@ -178,14 +177,12 @@ export default function App() {
 
         {/* TOP BAR */}
         <div style={{ display: "flex", justifyContent: "space-between", padding: "15px", borderBottom: "1px solid #1E293B" }}>
-
           <div style={{ display: "flex", gap: "10px" }}>
             <button onClick={() => setViewMode("cards")}>Cards</button>
             <button onClick={() => setViewMode("table")}>Table</button>
             <button onClick={() => setShowFilters(!showFilters)}>Filters</button>
           </div>
 
-          {/* USER */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             Brian
             <div style={{
@@ -200,66 +197,77 @@ export default function App() {
               B
             </div>
           </div>
-
         </div>
 
         {/* CONTENT */}
         <div style={{ display: "flex", flex: 1 }}>
 
           {/* LEFT LIST */}
-          <div style={{ width: "280px", borderRight: "1px solid #1E293B", padding: "15px" }}>
+          <div style={{ width: "280px", borderRight: "1px solid #1E293B" }}>
+
+            {viewMode === "table" && (
+              <table style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "11px"
+              }}>
+                <tbody>
+                  {messages.map((item, i) => (
+                    <tr key={i}
+                      onClick={() => setSelected(i)}
+                      style={{
+                        cursor: "pointer",
+                        background: selected === i ? "#1E293B" : "transparent",
+                        borderBottom: "1px solid #1E293B"
+                      }}>
+                      <td style={{ padding: "5px 6px" }}>#{item.id}</td>
+
+                      <td style={{ padding: "5px 6px", fontWeight: "500" }}>
+                        {item.name}
+                      </td>
+
+                      <td style={{
+                        padding: "5px 6px",
+                        maxWidth: "120px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        color: "#9CA3AF"
+                      }}>
+                        {item.text}
+                      </td>
+
+                      <td style={{ padding: "5px 6px", fontSize: "10px" }}>
+                        {item.status}
+                      </td>
+
+                      <td style={{ padding: "5px 6px" }}>
+                        <span style={{
+                          background: getBadgeColor(item.type),
+                          padding: "2px 4px",
+                          borderRadius: "4px",
+                          fontSize: "9px"
+                        }}>
+                          {item.type}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
 
             {viewMode === "cards" && messages.map((item, i) => (
               <div key={i}
                 onClick={() => setSelected(i)}
                 style={{
                   padding: "12px",
-                  marginBottom: "10px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  background: selected === i ? "#1E293B" : "#020617",
-                  transition: "0.2s"
+                  margin: "10px",
+                  background: "#020617"
                 }}>
-                <b>#{item.id} {item.name}</b><br />
-                <small>{item.text}</small>
-
-                <div style={{
-                  marginTop: "8px",
-                  display: "flex",
-                  justifyContent: "space-between"
-                }}>
-                  <span style={{
-                    background: getBadgeColor(item.type),
-                    padding: "2px 6px",
-                    borderRadius: "6px",
-                    fontSize: "11px"
-                  }}>
-                    {item.type}
-                  </span>
-
-                  <span style={{
-                    color: item.status === "closed" ? "#EF4444" : "#22C55E",
-                    fontSize: "11px"
-                  }}>
-                    {item.status}
-                  </span>
-                </div>
+                {item.name}
               </div>
             ))}
-
-            {viewMode === "table" && (
-              <table style={{ width: "100%", fontSize: "12px" }}>
-                <tbody>
-                  {messages.map((item, i) => (
-                    <tr key={i} onClick={() => setSelected(i)} style={{ cursor: "pointer" }}>
-                      <td>#{item.id}</td>
-                      <td>{item.name}</td>
-                      <td>{item.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
 
           </div>
 
@@ -350,4 +358,4 @@ export default function App() {
       </div>
     </div>
   ); 
-} 
+}
