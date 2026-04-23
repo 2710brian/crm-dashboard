@@ -2,185 +2,169 @@ import { useState } from "react";
 
 export default function App() {
 
+  const [view, setView] = useState("inbox"); // inbox | crm
   const [selected, setSelected] = useState(0);
+  const [crmSelected, setCrmSelected] = useState(null);
+  const [showTypeSelect, setShowTypeSelect] = useState(false);
 
   const [messages, setMessages] = useState([
     { name: "3nordic.dk", type: "email", text: "Hej vi vil gerne samarbejde...", status: "open" },
-    { name: "Nordic Food", type: "whatsapp", text: "Kan du sende priser?", status: "open" },
-    { name: "Unknown Lead", type: "call", text: "Missed call", status: "closed" }
+    { name: "Nordic Food", type: "whatsapp", text: "Kan du sende priser?", status: "open" }
   ]);
+
+  const [crm, setCrm] = useState([]);
 
   const active = messages[selected];
 
-  const updateStatus = (status) => {
-    const updated = [...messages];
-    updated[selected].status = status;
-    setMessages(updated);
-  };
+  const convertToCRM = (type) => {
+    const newClient = {
+      name: active.name,
+      email: "unknown@mail.com",
+      type,
+      affiliate: { network: "", epc: "", provision: "" },
+      iptv: { plan: "", status: "" },
+      normal: { service: "", price: "" }
+    };
 
-  const removeTicket = () => {
-    const updated = messages.filter((_, i) => i !== selected);
-    setMessages(updated);
-    setSelected(0);
-  };
-
-  const convertToCRM = () => {
-    alert("Sendt til CRM (senere: rigtig integration)");
-    updateStatus("converted");
+    setCrm([...crm, newClient]);
+    setCrmSelected(newClient);
+    setView("crm");
+    setShowTypeSelect(false);
   };
 
   const getBadgeColor = (type) => {
     if (type === "email") return "#3B82F6";
     if (type === "whatsapp") return "#22C55E";
-    if (type === "call") return "#F97316";
-    return "#6B7280";
+    return "#F97316";
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#0F172A", color: "#E5E7EB", fontFamily: "Inter" }}>
+    <div style={{ display: "flex", height: "100vh", background: "#0F172A", color: "#E5E7EB" }}>
 
       {/* SIDEBAR */}
       <div style={{ width: "220px", background: "#020617", padding: "20px" }}>
-        <h2 style={{ marginBottom: "30px" }}>CRM</h2>
+        <h2>CRM</h2>
 
-        {["Dashboard", "Inbox", "CRM", "Calls", "Social"].map((item) => (
-          <div key={item} style={{
-            padding: "10px",
-            borderRadius: "8px",
-            marginBottom: "10px",
-            cursor: "pointer",
-            background: item === "Inbox" ? "#1E293B" : "transparent"
-          }}>
-            {item}
-          </div>
-        ))}
+        <div onClick={() => setView("inbox")} style={{ marginTop: "20px", cursor: "pointer" }}>Inbox</div>
+        <div onClick={() => setView("crm")} style={{ marginTop: "10px", cursor: "pointer" }}>CRM</div>
 
-        <div style={{ position: "absolute", bottom: "20px" }}>
-          ⚙ Settings
-        </div>
+        <div style={{ position: "absolute", bottom: "20px" }}>⚙ Settings</div>
       </div>
 
       {/* MAIN */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, display: "flex" }}>
 
-        {/* TOP BAR */}
-        <div style={{ display: "flex", gap: "15px", padding: "15px", borderBottom: "1px solid #1E293B" }}>
-          {[
-            { label: "Inbox", value: 12 },
-            { label: "Calls", value: 5 },
-            { label: "Messages", value: 18 },
-            { label: "Emails", value: 72 },
-            { label: "Deals", value: 35 }
-          ].map((item, i) => (
-            <div key={i} style={{
-              background: "#1E293B",
-              padding: "10px 15px",
-              borderRadius: "10px"
-            }}>
-              {item.label}<br />
-              <b>{item.value}</b>
-            </div>
-          ))}
-        </div>
+        {/* INBOX */}
+        {view === "inbox" && (
+          <>
+            {/* LEFT */}
+            <div style={{ width: "280px", padding: "15px", borderRight: "1px solid #1E293B" }}>
+              {messages.map((item, i) => (
+                <div key={i}
+                  onClick={() => setSelected(i)}
+                  style={{
+                    padding: "10px",
+                    marginBottom: "10px",
+                    background: selected === i ? "#1E293B" : "#020617",
+                    borderRadius: "10px",
+                    cursor: "pointer"
+                  }}>
+                  <b>{item.name}</b>
+                  <br />
+                  <small>{item.text}</small>
 
-        {/* CONTENT */}
-        <div style={{ display: "flex", flex: 1 }}>
-
-          {/* LEFT LIST */}
-          <div style={{ width: "280px", borderRight: "1px solid #1E293B", padding: "15px" }}>
-            {messages.map((item, i) => (
-              <div key={i}
-                onClick={() => setSelected(i)}
-                style={{
-                  padding: "12px",
-                  marginBottom: "10px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  background: selected === i ? "#1E293B" : "#020617"
-                }}>
-                <b>{item.name}</b><br />
-                <small>{item.text}</small>
-
-                <div style={{
-                  marginTop: "8px",
-                  display: "flex",
-                  justifyContent: "space-between"
-                }}>
-                  <span style={{
+                  <div style={{
+                    marginTop: "5px",
+                    fontSize: "11px",
                     background: getBadgeColor(item.type),
+                    display: "inline-block",
                     padding: "2px 6px",
-                    borderRadius: "6px",
-                    fontSize: "11px"
+                    borderRadius: "6px"
                   }}>
                     {item.type}
-                  </span>
-
-                  <span style={{
-                    color: item.status === "closed" ? "#EF4444" : "#22C55E",
-                    fontSize: "11px"
-                  }}>
-                    {item.status}
-                  </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* MIDDLE */}
+            {/* MIDDLE */}
+            <div style={{ flex: 1, padding: "20px" }}>
+              <h2>{active.name}</h2>
+              <p>{active.text}</p>
+
+              <button onClick={() => setShowTypeSelect(true)}>
+                Convert to CRM
+              </button>
+
+              {showTypeSelect && (
+                <div style={{ marginTop: "10px" }}>
+                  <button onClick={() => convertToCRM("normal")}>Normal</button>
+                  <button onClick={() => convertToCRM("affiliate")}>Affiliate</button>
+                  <button onClick={() => convertToCRM("iptv")}>IPTV</button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* CRM VIEW */}
+        {view === "crm" && crmSelected && (
           <div style={{ flex: 1, padding: "20px" }}>
-            <h2>{active?.name}</h2>
-            <p>{active?.text}</p>
 
-            {/* BUTTONS */}
-            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-              <button style={{ background: "#22C55E", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={convertToCRM}>
-                Convert
-              </button>
+            <h2>{crmSelected.name}</h2>
 
-              <button style={{ background: "#3B82F6", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={() => updateStatus("in progress")}>
-                Assign
-              </button>
+            {/* TABS */}
+            <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+              <div style={{ padding: "5px 10px", background: "#1E293B", borderRadius: "6px" }}>Kontakt</div>
 
-              <button style={{ background: "#475569", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={() => updateStatus("closed")}>
-                Close
-              </button>
+              {crmSelected.type === "affiliate" && (
+                <div style={{ padding: "5px 10px", background: "#1E293B", borderRadius: "6px" }}>
+                  Affiliate
+                </div>
+              )}
 
-              <button style={{ background: "#EF4444", padding: "8px 12px", border: "none", borderRadius: "6px", color: "white" }} onClick={removeTicket}>
-                Delete
-              </button>
+              {crmSelected.type === "iptv" && (
+                <div style={{ padding: "5px 10px", background: "#1E293B", borderRadius: "6px" }}>
+                  IPTV
+                </div>
+              )}
+
+              {crmSelected.type === "normal" && (
+                <div style={{ padding: "5px 10px", background: "#1E293B", borderRadius: "6px" }}>
+                  Kunde
+                </div>
+              )}
             </div>
 
-            <textarea
-              placeholder="Svar..."
-              style={{
-                marginTop: "20px",
-                width: "100%",
-                height: "150px",
-                background: "#020617",
-                border: "1px solid #1E293B",
-                borderRadius: "10px",
-                padding: "10px",
-                color: "white"
-              }}
-            />
-          </div>
-
-          {/* RIGHT */}
-          <div style={{ width: "260px", borderLeft: "1px solid #1E293B", padding: "15px" }}>
+            {/* FIELDS */}
             <div style={{ background: "#020617", padding: "15px", borderRadius: "10px" }}>
-              <h3>Kunde info</h3>
+              <p>Email: {crmSelected.email}</p>
 
-              <p>Status: <span style={{ color: "#22C55E" }}>{active?.status}</span></p>
-              <p>Kanal: {active?.type}</p>
+              {crmSelected.type === "affiliate" && (
+                <>
+                  <p>Netværk: {crmSelected.affiliate.network}</p>
+                  <p>EPC: {crmSelected.affiliate.epc}</p>
+                </>
+              )}
 
-              <hr style={{ borderColor: "#1E293B" }} />
+              {crmSelected.type === "iptv" && (
+                <>
+                  <p>Plan: {crmSelected.iptv.plan}</p>
+                  <p>Status: {crmSelected.iptv.status}</p>
+                </>
+              )}
 
-              <p>Lead type: Affiliate</p>
-              <p>Potential: High</p>
+              {crmSelected.type === "normal" && (
+                <>
+                  <p>Service: {crmSelected.normal.service}</p>
+                  <p>Pris: {crmSelected.normal.price}</p>
+                </>
+              )}
             </div>
-          </div>
 
-        </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
