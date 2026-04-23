@@ -48,13 +48,17 @@ export default function App() {
   const [lang, setLang] = useState("da");
   const t = (k) => translations[lang][k] || k;
 
+  // ===== NEW UI STATE =====
+  const [viewMode, setViewMode] = useState("cards");
+  const [showFilters, setShowFilters] = useState(false);
+
   // ===== DATA =====
   const [selected, setSelected] = useState(0);
 
   const [messages, setMessages] = useState([
-    { name: "3nordic.dk", type: "email", text: "Hej vi vil gerne samarbejde...", status: "open" },
-    { name: "Nordic Food", type: "whatsapp", text: "Kan du sende priser?", status: "open" },
-    { name: "Unknown Lead", type: "call", text: "Missed call", status: "closed" }
+    { id: 1001, name: "3nordic.dk", type: "email", text: "Hej vi vil gerne samarbejde...", status: "open" },
+    { id: 1002, name: "Nordic Food", type: "whatsapp", text: "Kan du sende priser?", status: "open" },
+    { id: 1003, name: "Unknown Lead", type: "call", text: "Missed call", status: "closed" }
   ]);
 
   const active = messages[selected];
@@ -175,23 +179,10 @@ export default function App() {
         {/* TOP BAR */}
         <div style={{ display: "flex", justifyContent: "space-between", padding: "15px", borderBottom: "1px solid #1E293B" }}>
 
-          <div style={{ display: "flex", gap: "15px" }}>
-            {[
-              { label: "Inbox", value: 12 },
-              { label: "Calls", value: 5 },
-              { label: "Messages", value: 18 },
-              { label: "Emails", value: 72 },
-              { label: "Deals", value: 35 }
-            ].map((item, i) => (
-              <div key={i} style={{
-                background: "#1E293B",
-                padding: "10px 15px",
-                borderRadius: "10px"
-              }}>
-                {item.label}<br />
-                <b>{item.value}</b>
-              </div>
-            ))}
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button onClick={() => setViewMode("cards")}>Cards</button>
+            <button onClick={() => setViewMode("table")}>Table</button>
+            <button onClick={() => setShowFilters(!showFilters)}>Filters</button>
           </div>
 
           {/* USER */}
@@ -217,7 +208,8 @@ export default function App() {
 
           {/* LEFT LIST */}
           <div style={{ width: "280px", borderRight: "1px solid #1E293B", padding: "15px" }}>
-            {messages.map((item, i) => (
+
+            {viewMode === "cards" && messages.map((item, i) => (
               <div key={i}
                 onClick={() => setSelected(i)}
                 style={{
@@ -228,7 +220,7 @@ export default function App() {
                   background: selected === i ? "#1E293B" : "#020617",
                   transition: "0.2s"
                 }}>
-                <b>{item.name}</b><br />
+                <b>#{item.id} {item.name}</b><br />
                 <small>{item.text}</small>
 
                 <div style={{
@@ -254,11 +246,26 @@ export default function App() {
                 </div>
               </div>
             ))}
+
+            {viewMode === "table" && (
+              <table style={{ width: "100%", fontSize: "12px" }}>
+                <tbody>
+                  {messages.map((item, i) => (
+                    <tr key={i} onClick={() => setSelected(i)} style={{ cursor: "pointer" }}>
+                      <td>#{item.id}</td>
+                      <td>{item.name}</td>
+                      <td>{item.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
           </div>
 
           {/* MIDDLE */}
           <div style={{ flex: 1, padding: "20px" }}>
-            <h2>{active?.name}</h2>
+            <h2>#{active?.id} {active?.name}</h2>
             <p>{active?.text}</p>
 
             <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
@@ -287,7 +294,6 @@ export default function App() {
           <div style={{ width: "260px", borderLeft: "1px solid #1E293B", padding: "15px" }}>
             <div style={{ background: "#020617", padding: "15px", borderRadius: "10px" }}>
               <h3>Kunde info</h3>
-
               <p>Status: <span style={{ color: "#22C55E" }}>{active?.status}</span></p>
               <p>Kanal: {active?.type}</p>
 
@@ -297,6 +303,48 @@ export default function App() {
               <p>Potential: High</p>
             </div>
           </div>
+
+          {/* FILTER PANEL */}
+          {showFilters && (
+            <div style={{
+              position: "absolute",
+              right: 0,
+              top: 60,
+              width: "300px",
+              height: "100%",
+              background: "#020617",
+              padding: "15px",
+              borderLeft: "1px solid #1E293B"
+            }}>
+              <h3>Filters</h3>
+
+              <p>Status</p>
+              <select style={{ width: "100%" }}>
+                <option>All</option>
+                <option>Open</option>
+                <option>Closed</option>
+              </select>
+
+              <p style={{ marginTop: "15px" }}>Channel</p>
+              <select style={{ width: "100%" }}>
+                <option>All</option>
+                <option>Email</option>
+                <option>WhatsApp</option>
+                <option>Call</option>
+              </select>
+
+              <button style={{
+                marginTop: "20px",
+                width: "100%",
+                padding: "10px",
+                background: "#3B82F6",
+                border: "none",
+                borderRadius: "6px"
+              }}>
+                Apply
+              </button>
+            </div>
+          )}
 
         </div>
       </div>
