@@ -16,11 +16,11 @@ export default function App() {
       }}>
         <h2 style={{ marginBottom: "30px" }}>CRM</h2>
 
-        <div style={{ color: "#2563EB", marginBottom: "10px" }}>🏠 Dashboard</div>
-        <div style={{ marginBottom: "10px" }}>📥 Inbox</div>
-        <div style={{ marginBottom: "10px" }}>👤 CRM</div>
-        <div style={{ marginBottom: "10px" }}>📞 Calls</div>
-        <div style={{ marginBottom: "10px" }}>📣 Social</div>
+        <div style={{ color: "#2563EB", marginBottom: "12px", cursor: "pointer" }}>🏠 Dashboard</div>
+        <div style={{ marginBottom: "12px", cursor: "pointer" }}>📥 Inbox</div>
+        <div style={{ marginBottom: "12px", cursor: "pointer" }}>👤 CRM</div>
+        <div style={{ marginBottom: "12px", cursor: "pointer" }}>📞 Calls</div>
+        <div style={{ marginBottom: "12px", cursor: "pointer" }}>📣 Social</div>
       </div>
 
       {/* Main */}
@@ -43,13 +43,13 @@ export default function App() {
         {/* Content */}
         <div style={{ padding: "30px" }}>
 
-          {/* Cards */}
+          {/* Top Cards */}
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "20px"
+            gap: "20px",
+            marginBottom: "30px"
           }}>
-
             {[
               ["📥 Inbox", "12"],
               ["📞 Calls", "5"],
@@ -59,8 +59,7 @@ export default function App() {
                 background: "#fff",
                 padding: "20px",
                 borderRadius: "12px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                transition: "0.2s"
+                boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
               }}>
                 <div style={{ color: "#6B7280", fontSize: "14px" }}>
                   {title}
@@ -74,6 +73,48 @@ export default function App() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Main Grid */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr",
+            gap: "20px"
+          }}>
+
+            {/* Pipeline */}
+            <div style={{
+              background: "#fff",
+              padding: "20px",
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+            }}>
+              <h3 style={{ marginBottom: "15px" }}>Pipeline</h3>
+
+              <div style={{ display: "flex", gap: "20px" }}>
+                <div>New: 12</div>
+                <div>Contacted: 8</div>
+                <div>Interested: 4</div>
+                <div>Closed: 2</div>
+              </div>
+            </div>
+
+            {/* Activity */}
+            <div style={{
+              background: "#fff",
+              padding: "20px",
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+            }}>
+              <h3 style={{ marginBottom: "15px" }}>Activity</h3>
+
+              <ul style={{ fontSize: "14px", lineHeight: "1.8" }}>
+                <li>📥 Email fra 3nordic.dk</li>
+                <li>📞 Missed call</li>
+                <li>💬 WhatsApp besked</li>
+                <li>📣 Kampagne sendt</li>
+              </ul>
+            </div>
 
           </div>
 
